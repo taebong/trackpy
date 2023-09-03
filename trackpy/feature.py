@@ -1,6 +1,7 @@
 import warnings
 import logging
 from functools import partial
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -18,7 +19,6 @@ from .uncertainty import _static_error, measure_noise
 import trackpy  # to get trackpy.__version__
 
 logger = logging.getLogger(__name__)
-
 
 def minmass_v03_change(raw_image, old_minmass, preprocess=True,
                        invert=False, noise_size=1, smoothing_size=None,
@@ -531,7 +531,7 @@ def batch(frames, diameter, output=None, meta=None, processes='auto',
         except AttributeError:
             source = None
         meta_info = dict(
-            timestamp=pd.datetime.utcnow().strftime('%Y-%m-%d-%H%M%S'),
+            timestamp=datetime.utcnow().strftime('%Y-%m-%d-%H%M%S'),
             trackpy_version=trackpy.__version__,
             source=source,
             **kwargs
