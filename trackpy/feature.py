@@ -450,7 +450,7 @@ def locate(raw_image, diameter, minmass=None, maxsize=None, separation=None,
             refined_coords['ep'] = ep
         else:
             ep = pd.DataFrame(ep, columns=['ep_' + cc for cc in pos_columns])
-            refined_coords = pandas_concat([refined_coords, ep], axis=1)
+            refined_coords = pd.concat([refined_coords, ep], axis=1)
 
     # If this is a pims Frame object, it has a frame number.
     # Tag it on; this is helpful for parallelization.
