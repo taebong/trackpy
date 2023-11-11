@@ -31,19 +31,34 @@ except ValueError:  # Probably a development version
     is_scipy_15 = False
 
 
-def fit_powerlaw(data, plot=True, **kwargs):
+def fit_powerlaw(data, plot=True, fitrange=[], **kwargs):
     """Fit a powerlaw by doing a linear regression in log space."""
     ys = pd.DataFrame(data)
     x = pd.Series(data.index.values, index=data.index, dtype=np.float64)
-    values = pd.DataFrame(index=['n', 'A'])
+    
+    if (len(fitrange)!=0):
+        ys = ys.loc[(ys.index.values>=fitrange[0]) & (ys.index.values<=fitrange[1])]
+        x = x.loc[(x.index.values>=fitrange[0]) & (x.index.values<=fitrange[1])]
+
+    dict_list = []
     fits = {}
+
     for col in ys:
         y = ys[col].dropna()
-        slope, intercept, r, p, stderr = \
-            stats.linregress(np.log(x), np.log(y))
-        values[col] = [slope, np.exp(intercept)]
+
+        y = y.loc[y>0]
+        
+        res = stats.linregress(np.log(y.index.values), np.log(y))
+        slope = res.slope
+        intercept = res.intercept
+        r = res.rvalue
+        stderr = res.stderr
+        intercept_stderr = res.intercept_stderr
+
+        dict_list.append({'n':slope,'A':np.exp(intercept),'r':r,'dn':stderr,'dA':np.exp(intercept)*intercept_stderr})
+
         fits[col] = x.apply(lambda x: np.exp(intercept)*x**slope)
-    values = values.T
+    values = pd.DataFrame(dict_list,index=ys.columns)
     fits = pandas_concat(fits, axis=1)
     if plot:
         from trackpy import plots
